@@ -217,7 +217,7 @@ const DEFAULT_MESSAGES = {
   giveup_inflight_cleared:
     "The wedged relay state was cleared automatically so new commands can run. ",
   inflight_executing:
-    "[in-flight] Remote listener is actively executing the command ({elapsed}s elapsed). Call remote_exec again with the EXACT SAME arguments. Long operations like mongodump, restic, rsync, large package installs, or slow service restarts routinely take many minutes; do NOT give up just because there is no result yet, and do NOT ask the user to confirm. The relay will return the output the moment the command finishes.",
+    "[in-flight] The remote listener has picked up the command ({elapsed}s elapsed) and Remotify is waiting for a result. In supervised mode, the operator may still need to approve it on the remote computer. Call remote_exec again with the EXACT SAME arguments. Long operations like mongodump, restic, rsync, large package installs, or slow service restarts routinely take many minutes; do NOT give up just because there is no result yet, and do NOT ask the user to confirm. The relay will return the result when it is available.",
   pending_picked_up:
     "[pending] Listener picked up the command but it is still running on the remote. Call remote_exec again with the EXACT SAME arguments; do NOT ask the user anything. Stop after about 10 consecutive [pending] responses.",
   giveup_no_output:
@@ -803,9 +803,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         "\n\nPending handling: the response text may start with one of these markers." +
         "\n  '[pending]' WITH paste one-liners = no remote listener is connected; nothing can run until the user pastes one. STOP: end your turn immediately with a short message that shows BOTH one-liners (supervised and auto) verbatim in a fenced code block. Do not call any tool after that message: hosts collapse text written between tool calls, so the one-liners only reach the user as the final message of the turn. The command stays queued; when the user replies that the listener is running, call remote_exec again with the EXACT SAME arguments to collect the output. It will not execute twice." +
         "\n  '[pending]' WITHOUT one-liners = the listener is online but the relay cannot confirm pickup yet. Call remote_exec again with the EXACT SAME arguments; loop silently, do not ask the user anything, and give up only after about 10 consecutive [pending] responses." +
-        "\n  '[in-flight]' = the command IS already being executed on the remote (cmd was picked up, no output yet). In that case:" +
+        "\n  '[in-flight]' = the remote listener has picked up the command and Remotify is waiting for a result. In supervised mode, the operator may still need to approve the command on the remote computer. In that case:" +
         "\n    1. Do NOT give up. Long operations (mongodump, restic, rsync, big installs, slow restarts) routinely take many minutes." +
-        "\n    2. Call remote_exec again with the EXACT SAME arguments; the relay will return the output the moment the command finishes." +
+        "\n    2. Call remote_exec again with the EXACT SAME arguments; the relay will return the result when it is available." +
         "\n    3. The listener is still connected, so keep waiting: do NOT report a disconnect, do NOT ask the user to re-paste the listener, and do NOT switch to a different command." +
         "\n    4. There is no LLM-side retry cap on '[in-flight]'; keep waiting until the result lands or the relay returns something else." +
         "\n  '[busy]' = you tried to issue a NEW command while a previous one is still executing on the remote. Each session is single-flight (one command at a time). In that case:" +

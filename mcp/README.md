@@ -258,8 +258,10 @@ So `remote_exec` distinguishes two `[pending]` cases:
 5. Listener online (fresh heartbeat) but pickup not yet confirmed: the tool
    returns a `[pending]` without one-liners and asks for a silent same-args
    retry, giving up only after about 10 consecutive responses. Once the relay
-   confirms the command is executing (`cmd_in_flight`) the response switches
-   to `[in-flight]`, which has no retry cap at all.
+   confirms the listener has picked up the command (`cmd_in_flight`), the
+   response switches to `[in-flight]` while Remotify waits for a result. In
+   supervised mode, the command may still be waiting for operator approval.
+   There is no assistant-side retry cap for `[in-flight]`.
 6. Relay unreachable rather than listener missing: when not one status probe
    got through, the response says so instead of sending the user off to paste
    a line that is not what is broken. A relay that cannot be reached at all
